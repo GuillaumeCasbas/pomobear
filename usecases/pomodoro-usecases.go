@@ -7,21 +7,22 @@ import (
 )
 
 type PomodoroUsecases struct {
-	Repo domain.PomodoroRepository
+	store domain.PomodoroStore
 }
 
 func NewPomodoroUsecases(repository domain.PomodoroRepository) PomodoroUsecases {
-	return PomodoroUsecases{repository}
+	s := domain.NewStore(repository)
+	return PomodoroUsecases{s}
 }
 
 func (u PomodoroUsecases) Start() (bool, error) {
-	_, ok := u.Repo.GetCurrent()
+	_, ok := u.store.GetCurrent()
 
 	if ok {
 		return false, nil
 	}
 
-	err := u.Repo.Save(domain.NewPomodoro(time.Now()))
+	err := u.store.Add(domain.NewPomodoro(time.Now()))
 
 	if err != nil {
 		return false, err
@@ -31,7 +32,7 @@ func (u PomodoroUsecases) Start() (bool, error) {
 }
 
 func (u PomodoroUsecases) Status() (int, error) {
-	pomodoro, ok := u.Repo.GetCurrent()
+	pomodoro, ok := u.store.GetCurrent()
 
 	if !ok {
 		return 0, nil

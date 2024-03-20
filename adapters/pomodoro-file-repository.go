@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/guillaumecasbas/pomobear/domain"
 )
 
-// TODO: this file is a bit messy
 var folder = "pomo-bear"
 var fileName = "sessions.json"
 
@@ -38,33 +36,20 @@ func NewPomodoroFileRepository() (*PomodoroFileRepository, error) {
 	return r, nil
 }
 
-func (r *PomodoroFileRepository) Save(pomodoro domain.Pomodoro) error {
-	pomodoros, err := r.getPomodoros()
-	if err != nil {
-		return err
-	}
-	pomodoros = append(pomodoros, pomodoro)
-	r.writeFile(pomodoros)
-	return nil
+func (r *PomodoroFileRepository) Save(pomodoros []domain.Pomodoro) error {
+	err := r.writeFile(pomodoros)
+
+	return err
 }
 
-func (r *PomodoroFileRepository) GetCurrent() (domain.Pomodoro, bool) {
-	ok := false
-	currentPomo := domain.Pomodoro{}
-
+func (r *PomodoroFileRepository) GetAll() ([]domain.Pomodoro, error) {
 	pomodoros, err := r.getPomodoros()
+
 	if err != nil {
-		return domain.Pomodoro{}, ok
+		return []domain.Pomodoro{}, err
 	}
 
-	for _, v := range pomodoros {
-		if v.Endt.After(time.Now()) {
-			currentPomo = v
-			ok = true
-			break
-		}
-	}
-	return currentPomo, ok
+	return pomodoros, nil
 }
 
 func (r *PomodoroFileRepository) writeFile(pomodoros []domain.Pomodoro) error {

@@ -11,23 +11,30 @@ import (
 var currentPomodoro = domain.Pomodoro{Startt: time.Now().Add(-25 * time.Second), Endt: time.Now().Add(25 * time.Minute)}
 
 type PomoRepoMock struct {
-	Calls          []domain.Pomodoro
-	HasOneRunning  bool
-	SaveWillThrow  bool
+	Calls         [][]domain.Pomodoro
+	HasOneRunning bool
+	SaveWillThrow bool
 }
 
-func (r *PomoRepoMock) Save(p domain.Pomodoro) error {
+func (r *PomoRepoMock) Save(p []domain.Pomodoro) error {
 	if r.SaveWillThrow {
 		return errors.New("foo bar")
 	}
 
-	r.Calls = append(r.Calls, p)
+    r.Calls = append(r.Calls, p)
 
 	return nil
 }
 
-func (r *PomoRepoMock) GetCurrent() (domain.Pomodoro, bool) {
-	return currentPomodoro, r.HasOneRunning
+func (r *PomoRepoMock) GetAll() ([]domain.Pomodoro, error) {
+	pomodoros := []domain.Pomodoro{}
+
+	if r.HasOneRunning {
+		pomodoros = append(pomodoros, currentPomodoro)
+
+	}
+
+	return pomodoros, nil
 }
 
 func TestStart(t *testing.T) {
@@ -51,7 +58,7 @@ func TestStart(t *testing.T) {
 			t.Fatalf("expect %d calls, got %d", 1, len(r.Calls))
 		}
 
-		pomodoro := r.Calls[0]
+		pomodoro := r.Calls[0][0]
 
 		if pomodoro.Startt != expectedStartt {
 			t.Errorf("expect %s, got %s", expectedStartt, pomodoro.Startt)

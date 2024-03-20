@@ -3,8 +3,8 @@ package domain
 import "time"
 
 var (
-    duration = 25 * time.Minute
-    roundValue = 60 * time.Second
+	duration   = 25 * time.Minute
+	roundValue = 60 * time.Second
 )
 
 type Pomodoro struct {
@@ -19,7 +19,12 @@ func NewPomodoro(startt time.Time) Pomodoro {
 	}
 }
 
+type PomodoroStore interface {
+	GetCurrent() (*Pomodoro, bool)
+	Add(p Pomodoro) error
+}
+
 type PomodoroRepository interface {
-	GetCurrent() (Pomodoro, bool)
-	Save(p Pomodoro) error
+	GetAll() ([]Pomodoro, error)
+	Save(p []Pomodoro) error
 }
