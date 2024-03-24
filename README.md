@@ -23,4 +23,5 @@ completion  Generate the autocompletion script for the specified shell
 help        Help about any command
 start       Start a pomodoro
 status      Display the pomodoro remaining time
+stop        Stop the running pomodoro
 ```

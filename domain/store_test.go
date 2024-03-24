@@ -6,14 +6,16 @@ import (
 )
 
 type RepoMock struct {
-	storage   []Pomodoro
-	SaveCalls []Pomodoro
+	storage     []Pomodoro
+	SaveCalls   [][]Pomodoro
+	throwOnSave bool
 }
 
-func NewRepoMock(storage *[]Pomodoro) *RepoMock {
+func NewRepoMock(storage *[]Pomodoro, throwOnSave bool) *RepoMock {
 	return &RepoMock{
-		storage:   *storage,
-		SaveCalls: []Pomodoro{},
+		storage:     *storage,
+		SaveCalls:   [][]Pomodoro{},
+		throwOnSave: throwOnSave,
 	}
 }
 func (r *RepoMock) GetAll() ([]Pomodoro, error) {
@@ -21,7 +23,7 @@ func (r *RepoMock) GetAll() ([]Pomodoro, error) {
 }
 
 func (r *RepoMock) Save(p []Pomodoro) error {
-	r.SaveCalls = p
+	r.SaveCalls = append(r.SaveCalls, p)
 
 	return nil
 }
@@ -33,8 +35,8 @@ func TestNew(t *testing.T) {
 			NewPomodoro(time.Now()),
 			NewPomodoro(time.Now().Add(2 * time.Minute)),
 		}
-		r1 := NewRepoMock(emptyStorage)
-		r2 := NewRepoMock(storage)
+		r1 := NewRepoMock(emptyStorage, false)
+		r2 := NewRepoMock(storage, false)
 		s1 := NewStore(r1)
 		s2 := NewStore(r2)
 
@@ -75,7 +77,7 @@ func TestGetCurrent(t *testing.T) {
 			},
 		}
 
-		r := NewRepoMock(storage)
+		r := NewRepoMock(storage, false)
 		s := NewStore(r)
 
 		_, ok := s.GetCurrent()
@@ -95,7 +97,7 @@ func TestGetCurrent(t *testing.T) {
 			*expectedPomodoro,
 		}
 
-		r := NewRepoMock(storage)
+		r := NewRepoMock(storage, false)
 		s := NewStore(r)
 
 		p, ok := s.GetCurrent()
@@ -105,6 +107,38 @@ func TestGetCurrent(t *testing.T) {
 
 		if p.Endt != expectedPomodoro.Endt {
 			t.Errorf("expect %v, got %v", expectedPomodoro.Endt, p.Endt)
+		}
+	})
+}
+
+func TestSave(t *testing.T) {
+	t.Run("saves the store", func(t *testing.T) {
+		storage := &[]Pomodoro{
+			NewPomodoro(time.Now()),
+			NewPomodoro(time.Now().Add(2 * time.Minute)),
+		}
+		r := NewRepoMock(storage, false)
+		s := NewStore(r)
+
+		s.Save()
+
+		if len(r.SaveCalls) != 1 {
+			t.Errorf("expect 1 call, got %d", len(r.SaveCalls))
+		}
+	})
+
+	t.Run("returns the error on throw", func(t *testing.T) {
+		storage := &[]Pomodoro{
+			NewPomodoro(time.Now()),
+			NewPomodoro(time.Now().Add(2 * time.Minute)),
+		}
+		r := NewRepoMock(storage, true)
+		s := NewStore(r)
+
+		err := s.Save()
+
+		if err != nil {
+			t.Error("expect an error, got none")
 		}
 	})
 }

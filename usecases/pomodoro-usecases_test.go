@@ -21,7 +21,7 @@ func (r *PomoRepoMock) Save(p []domain.Pomodoro) error {
 		return errors.New("foo bar")
 	}
 
-    r.Calls = append(r.Calls, p)
+	r.Calls = append(r.Calls, p)
 
 	return nil
 }
@@ -132,6 +132,68 @@ func TestStatus(t *testing.T) {
 
 		if time != 0 {
 			t.Errorf("expect 0, got %d", time)
+		}
+	})
+}
+
+func TestStop(t *testing.T) {
+	t.Run("expires the current running pomodoro", func(t *testing.T) {
+		r := &PomoRepoMock{HasOneRunning: true}
+		u := NewPomodoroUsecases(r)
+		expectedPomodoro := &domain.Pomodoro{
+			Startt: currentPomodoro.Startt,
+			Endt:   time.Now(),
+		}
+
+		ok, _ := u.Stop()
+
+		if !ok {
+			t.Error("want true got false")
+		}
+
+		if len(r.Calls) != 1 {
+			t.Fatalf("expect 1, got %d", len(r.Calls))
+		}
+
+		if r.Calls[0][0].Startt != expectedPomodoro.Startt {
+			t.Errorf("expect %v, got %v", expectedPomodoro.Startt, r.Calls[0][0].Startt)
+		}
+
+		if r.Calls[0][0].Endt.Format("2006-01-02 13:21:13") != expectedPomodoro.Endt.Format("2006-01-02 13:21:13") {
+			t.Errorf("expect %v, got %v", expectedPomodoro.Endt, r.Calls[0][0].Endt)
+		}
+	})
+
+	t.Run("returns false when no pomodoro is running", func(t *testing.T) {
+		r := &PomoRepoMock{}
+		u := NewPomodoroUsecases(r)
+
+		ok, err := u.Stop()
+
+		if err != nil {
+			t.Fatal("expect no error, got one")
+		}
+
+		if ok {
+			t.Errorf("expect false, got %v", ok)
+		}
+	})
+
+	t.Run("return the false and the error on throw", func(t *testing.T) {
+        r := &PomoRepoMock{HasOneRunning: true, SaveWillThrow: true}
+		u := func() PomodoroUsecases {
+			s := domain.NewStore(domain.PomodoroRepository(r))
+			return PomodoroUsecases{s}
+		}()
+
+		ok, err := u.Stop()
+
+		if err == nil {
+			t.Fatal("expect an error, got none")
+		}
+
+		if ok {
+			t.Error("exepect false, got true")
 		}
 	})
 }

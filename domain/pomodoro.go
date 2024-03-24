@@ -22,6 +22,7 @@ func NewPomodoro(startt time.Time) Pomodoro {
 type PomodoroStore interface {
 	GetCurrent() (*Pomodoro, bool)
 	Add(p Pomodoro) error
+	Save() error
 }
 
 type PomodoroRepository interface {
