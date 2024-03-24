@@ -42,3 +42,20 @@ func (u PomodoroUsecases) Status() (int, error) {
 
 	return int(remainingTime), nil
 }
+
+func (u PomodoroUsecases) Stop() (bool, error) {
+    pomodoro, ok := u.store.GetCurrent()
+
+    if !ok {
+        return false, nil
+    }
+
+    pomodoro.Endt = time.Now()
+
+    err := u.store.Save()
+    if err != nil {
+        ok = false
+    }
+
+    return ok, err
+}

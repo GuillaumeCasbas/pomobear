@@ -36,3 +36,9 @@ func (s *Store) GetCurrent() (*Pomodoro, bool) {
 	}
 	return &Pomodoro{}, false
 }
+
+func (s *Store) Save() error {
+    err := s.repository.Save(s.Pomodoros)
+
+	return err
+}
