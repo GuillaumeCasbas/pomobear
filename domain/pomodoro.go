@@ -4,7 +4,7 @@ import "time"
 
 var (
 	duration   = 25 * time.Minute
-	roundValue = 60 * time.Second
+	roundValue = time.Second
 )
 
 type Pomodoro struct {

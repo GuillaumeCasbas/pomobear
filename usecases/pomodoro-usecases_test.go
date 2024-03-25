@@ -41,8 +41,8 @@ func TestStart(t *testing.T) {
 	t.Run("creates a new pomodoro and returns true", func(t *testing.T) {
 		r := &PomoRepoMock{}
 		u := NewPomodoroUsecases(r)
-		expectedStartt := time.Now().Round(60 * time.Second)
-		expectedEndt := time.Now().Add(25 * time.Minute).Round(60 * time.Second)
+		expectedStartt := time.Now().Round(time.Second)
+		expectedEndt := time.Now().Add(25 * time.Minute).Round(time.Second)
 
 		created, err := u.Start()
 
