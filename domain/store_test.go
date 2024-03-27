@@ -32,8 +32,8 @@ func TestNew(t *testing.T) {
 	t.Run("initializes the store from the repository", func(t *testing.T) {
 		emptyStorage := &[]Pomodoro{}
 		storage := &[]Pomodoro{
-			NewPomodoro(time.Now()),
-			NewPomodoro(time.Now().Add(2 * time.Minute)),
+			NewPomodoro(time.Now(), 29),
+			NewPomodoro(time.Now().Add(2 * time.Minute), 13),
 		}
 		r1 := NewRepoMock(emptyStorage, false)
 		r2 := NewRepoMock(storage, false)
@@ -53,7 +53,7 @@ func TestNew(t *testing.T) {
 func TestStoreAdd(t *testing.T) {
 	t.Run("adds a new pomodoro", func(t *testing.T) {
 		r := &RepoMock{}
-		p := NewPomodoro(time.Now())
+		p := NewPomodoro(time.Now(), 25)
 		s := NewStore(r)
 
 		err := s.Add(p)
@@ -114,8 +114,8 @@ func TestGetCurrent(t *testing.T) {
 func TestSave(t *testing.T) {
 	t.Run("saves the store", func(t *testing.T) {
 		storage := &[]Pomodoro{
-			NewPomodoro(time.Now()),
-			NewPomodoro(time.Now().Add(2 * time.Minute)),
+			NewPomodoro(time.Now(), 25),
+			NewPomodoro(time.Now().Add(2 * time.Minute), 25),
 		}
 		r := NewRepoMock(storage, false)
 		s := NewStore(r)
@@ -129,8 +129,8 @@ func TestSave(t *testing.T) {
 
 	t.Run("returns the error on throw", func(t *testing.T) {
 		storage := &[]Pomodoro{
-			NewPomodoro(time.Now()),
-			NewPomodoro(time.Now().Add(2 * time.Minute)),
+			NewPomodoro(time.Now(), 25),
+			NewPomodoro(time.Now().Add(2 * time.Minute), 10),
 		}
 		r := NewRepoMock(storage, true)
 		s := NewStore(r)

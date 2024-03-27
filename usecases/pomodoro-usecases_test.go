@@ -38,9 +38,53 @@ func (r *PomoRepoMock) GetAll() ([]domain.Pomodoro, error) {
 }
 
 func TestStart(t *testing.T) {
-	t.Run("creates a new pomodoro and returns true", func(t *testing.T) {
+	cases := []struct {
+		Duration        int
+		ExpectedEndTime time.Time
+	}{
+		{25, time.Now().Add(25 * time.Minute).Round(time.Second)},
+		{50, time.Now().Add(50 * time.Minute).Round(time.Second)},
+	}
+
+	for _, c := range cases {
+		t.Run("create a pomodoro based on the config", func(t *testing.T) {
+			r := &PomoRepoMock{}
+			u := NewPomodoroUsecases(r, WithDuration(c.Duration))
+
+			expectedStartt := time.Now().Round(time.Second)
+
+			created, err := u.Start()
+
+			if err != nil {
+				t.Fatal("expect 0 error, got one")
+			}
+
+			if !created {
+				t.Error("expect true got false")
+			}
+
+			if len(r.Calls) != 1 {
+				t.Fatalf("expect %d calls, got %d", 1, len(r.Calls))
+			}
+
+			pomodoro := r.Calls[0][0]
+
+			if pomodoro.Startt != expectedStartt {
+				t.Errorf("expect %s, got %s", expectedStartt, pomodoro.Startt)
+			}
+
+			if pomodoro.Endt != c.ExpectedEndTime {
+				t.Errorf("expect %s, got %s", c.ExpectedEndTime, pomodoro.Endt)
+			}
+
+		})
+
+	}
+
+	t.Run("create a pomodoro based on the default config", func(t *testing.T) {
 		r := &PomoRepoMock{}
 		u := NewPomodoroUsecases(r)
+
 		expectedStartt := time.Now().Round(time.Second)
 		expectedEndt := time.Now().Add(25 * time.Minute).Round(time.Second)
 
@@ -180,10 +224,10 @@ func TestStop(t *testing.T) {
 	})
 
 	t.Run("return the false and the error on throw", func(t *testing.T) {
-        r := &PomoRepoMock{HasOneRunning: true, SaveWillThrow: true}
+		r := &PomoRepoMock{HasOneRunning: true, SaveWillThrow: true}
 		u := func() PomodoroUsecases {
 			s := domain.NewStore(domain.PomodoroRepository(r))
-			return PomodoroUsecases{s}
+			return PomodoroUsecases{store: s}
 		}()
 
 		ok, err := u.Stop()
