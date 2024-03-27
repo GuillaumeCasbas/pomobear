@@ -3,7 +3,6 @@ package domain
 import "time"
 
 var (
-	duration   = 25 * time.Minute
 	roundValue = time.Second
 )
 
@@ -12,10 +11,12 @@ type Pomodoro struct {
 	Endt   time.Time
 }
 
-func NewPomodoro(startt time.Time) Pomodoro {
+func NewPomodoro(startt time.Time, duration int) Pomodoro {
+	d := time.Duration(duration) * time.Minute
+
 	return Pomodoro{
 		Startt: startt.Round(roundValue),
-		Endt:   startt.Add(duration).Round(roundValue),
+		Endt:   startt.Add(d).Round(roundValue),
 	}
 }
 

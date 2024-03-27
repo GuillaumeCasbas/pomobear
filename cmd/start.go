@@ -9,6 +9,7 @@ import (
 )
 
 func init() {
+	startCmd.Flags().Int("duration", 25, "duration in minute")
 	rootCmd.AddCommand(startCmd)
 }
 
@@ -17,22 +18,27 @@ var startCmd = &cobra.Command{
 	Short: "Start a pomodoro",
 	Long:  `Start a pomodoro. Default duration is 25 minutes`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		duration, err := cmd.Flags().GetInt("duration")
+		if err != nil {
+			return err
+		}
+
 		repo, err := adapters.NewPomodoroFileRepository()
 		if err != nil {
-            return err
+			return err
 		}
-		usecase := usecases.NewPomodoroUsecases(repo)
+		usecase := usecases.NewPomodoroUsecases(repo, usecases.WithDuration(duration))
 
-        ok, err := usecase.Start()
+		ok, err := usecase.Start()
 
 		if err != nil {
-            return err
+			return err
 		}
 
-        if !ok {
-            fmt.Println("A pomodoro is already running")
-        }
+		if !ok {
+			fmt.Println("A pomodoro is already running")
+		}
 
-        return nil
+		return nil
 	},
 }

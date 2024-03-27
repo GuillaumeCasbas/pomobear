@@ -6,13 +6,40 @@ import (
 	"github.com/guillaumecasbas/pomobear/domain"
 )
 
+type ConfFunc func(*PomodoroConfig)
+
+type PomodoroConfig struct {
+	duration int
+}
+
+func defaultConf() PomodoroConfig {
+	return PomodoroConfig{
+		duration: 25,
+	}
+}
+
+func WithDuration(duration int) ConfFunc {
+	return func(c *PomodoroConfig) {
+		c.duration = duration
+	}
+}
+
 type PomodoroUsecases struct {
+	conf  PomodoroConfig
 	store domain.PomodoroStore
 }
 
-func NewPomodoroUsecases(repository domain.PomodoroRepository) PomodoroUsecases {
+func NewPomodoroUsecases(repository domain.PomodoroRepository, configs ...ConfFunc) PomodoroUsecases {
+	c := defaultConf()
+
+	for _, fn := range configs {
+		fn(&c)
+	}
 	s := domain.NewStore(repository)
-	return PomodoroUsecases{s}
+	return PomodoroUsecases{
+		conf:  c,
+		store: s,
+	}
 }
 
 func (u PomodoroUsecases) Start() (bool, error) {
@@ -22,7 +49,7 @@ func (u PomodoroUsecases) Start() (bool, error) {
 		return false, nil
 	}
 
-	err := u.store.Add(domain.NewPomodoro(time.Now()))
+	err := u.store.Add(domain.NewPomodoro(time.Now(),u.conf.duration))
 
 	if err != nil {
 		return false, err
@@ -44,18 +71,18 @@ func (u PomodoroUsecases) Status() (int, error) {
 }
 
 func (u PomodoroUsecases) Stop() (bool, error) {
-    pomodoro, ok := u.store.GetCurrent()
+	pomodoro, ok := u.store.GetCurrent()
 
-    if !ok {
-        return false, nil
-    }
+	if !ok {
+		return false, nil
+	}
 
-    pomodoro.Endt = time.Now()
+	pomodoro.Endt = time.Now()
 
-    err := u.store.Save()
-    if err != nil {
-        ok = false
-    }
+	err := u.store.Save()
+	if err != nil {
+		ok = false
+	}
 
-    return ok, err
+	return ok, err
 }
