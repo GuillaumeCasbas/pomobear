@@ -1,3 +1,5 @@
+![Pomobear usage](/assets/pomobear-usage.png)
+
 # Pomobear - The tool to be(ar) Effective
 
 `pomobear` is a command line tool to help being focus & effective. It is based on the [Pomodoro technique](https://en.wikipedia.org/wiki/Pomodoro_Technique). 
@@ -24,4 +26,17 @@ help        Help about any command
 start       Start a pomodoro
 status      Display the pomodoro remaining time
 stop        Stop the running pomodoro
+```
+
+## Tmux integration
+
+
+![Tmux integration example](/assets/pomobear-tmux.png)
+
+The status countdown can be displayed inside the tmux status-bar with the following configuration :
+
+```
+set -g status-interval 1
+set -g status-right "#(pomobear status)"
+
 ```
