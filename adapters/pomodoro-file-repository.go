@@ -8,8 +8,8 @@ import (
 	"github.com/guillaumecasbas/pomobear/domain"
 )
 
-var folder = "pomo-bear"
-var fileName = "sessions.json"
+var folder = "pomobear"
+var fileName = "pomodoros.json"
 
 type PomodoroFileRepository struct {
 	homeDir   string
@@ -86,14 +86,14 @@ func (r *PomodoroFileRepository) createStoreFileIfNotExist() error {
 }
 
 func (r *PomodoroFileRepository) getPomodoros() ([]domain.Pomodoro, error) {
-	var sessions = []domain.Pomodoro{}
+	var pomodoros = []domain.Pomodoro{}
 	fileContent, err := os.ReadFile(r.storePath)
 
 	if err != nil {
-		return sessions, err
+		return pomodoros, err
 	}
 
-	err = json.Unmarshal(fileContent, &sessions)
+	err = json.Unmarshal(fileContent, &pomodoros)
 
-	return sessions, err
+	return pomodoros, err
 }
