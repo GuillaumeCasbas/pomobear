@@ -16,6 +16,12 @@ For [installation options see below](#installation), for usage instructions [see
 
 ## Installation
 
+### From release
+
+Download the latest build from the [release page](https://github.com/GuillaumeCasbas/pomobear/releases/lastest)
+
+### From source code
+
 use `go build` and then move the executation somewhere (ex: `mv pomobear /usr/local/bin`).
 
 ## Usage
