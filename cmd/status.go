@@ -9,6 +9,7 @@ import (
 )
 
 func init() {
+	statusCmd.Flags().Bool("raw", false, "only the the raw number of seconds")
 	rootCmd.AddCommand(statusCmd)
 }
 
@@ -19,6 +20,7 @@ var statusCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		presenter := adapters.NewCmdPresenter()
 		repo, err := adapters.NewPomodoroFileRepository()
+		wantRaw, err := cmd.Flags().GetBool("raw")
 
 		if err != nil {
 			return err
@@ -31,7 +33,11 @@ var statusCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println(presenter.DisplayStatus(remainingSeconds))
+		if wantRaw {
+			fmt.Println(remainingSeconds)
+		} else {
+			fmt.Println(presenter.DisplayStatus(remainingSeconds))
+		}
 
 		return nil
 	},

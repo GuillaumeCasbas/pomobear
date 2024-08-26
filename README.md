@@ -30,7 +30,7 @@ use `go build` and then move the executation somewhere (ex: `mv pomobear /usr/lo
 completion  Generate the autocompletion script for the specified shell
 help        Help about any command
 start       Start a pomodoro
-status      Display the pomodoro remaining time
+status      Display the pomodoro remaining time (--raw to get the number of remaining seconds)
 stop        Stop the running pomodoro
 ```
 
